@@ -5,74 +5,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚽ Football AI Analyzer</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0a0a0f;color:#e8e8f0;font-family:'Courier New',monospace;min-height:100vh;padding:20px 14px}
-  .header{text-align:center;margin-bottom:28px}
-  .title{font-size:clamp(1.2rem,4vw,1.9rem);font-weight:900;color:#00ff87;letter-spacing:.06em;text-transform:uppercase}
-  .subtitle{color:#555;font-size:.72rem;margin-top:6px;letter-spacing:.1em;text-transform:uppercase}
-  .card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:18px;max-width:700px;margin:0 auto 16px}
-  label{display:block;color:#888;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
-  .input-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:12px}
-  input,select{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;color:#e8e8f0;padding:10px 12px;font-size:.9rem;font-family:inherit;outline:none;width:100%}
-  input:focus,select:focus{border-color:#00ff87}
-  select{cursor:pointer;margin-bottom:12px}
-  .vs{color:#00ff87;font-weight:900;font-size:.9rem;text-align:center}
-  .btn{width:100%;padding:13px;background:#00ff87;color:#000;border:none;border-radius:8px;font-size:.86rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-family:inherit}
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .agent-row{max-width:700px;margin:0 auto 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .agent-box{background:#12121a;border:1px solid #1e1e2e;border-radius:10px;padding:10px 5px;text-align:center;transition:border-color .3s}
-  .agent-icon{font-size:1.1rem;margin-bottom:3px}
-  .agent-name{font-size:.53rem;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-  .agent-status{font-size:.6rem;font-weight:700}
-  .log-box{background:#0a0a10;border:1px solid #1a1a2a;border-radius:8px;padding:10px;max-width:700px;margin:0 auto 14px;font-size:.68rem;color:#555;line-height:1.9}
-  .err-box{background:#180808;border:1px solid #ff4444;border-radius:8px;padding:12px;color:#ff8888;font-size:.8rem;max-width:700px;margin:0 auto 14px;line-height:1.6}
-  .result-card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:20px;max-width:700px;margin:0 auto;animation:fadeIn .5s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-  .pulse{animation:pulse .85s ease infinite}
-  .match-title{text-align:center;font-size:1rem;font-weight:900;color:#00ff87;margin-bottom:3px}
-  .match-meta{text-align:center;color:#555;font-size:.7rem;margin-bottom:20px}
-  .odds-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
-  .odds-box{background:#0d0d17;border:1px solid #1e1e2e;border-radius:9px;padding:12px 7px;text-align:center;transition:border-color .3s,box-shadow .3s}
-  .odds-label{font-size:.54rem;color:#777;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-  .odds-value{font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:3px}
-  .odds-bar-bg{height:3px;border-radius:2px;background:#1e1e2e;margin-top:7px;overflow:hidden}
-  .odds-bar{height:100%;border-radius:2px;transition:width 1s ease}
-  .section-title{font-size:.63rem;color:#444;text-transform:uppercase;letter-spacing:.12em;border-top:1px solid #1e1e2e;padding-top:16px;margin-bottom:10px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-  .a-item{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;padding:11px}
-  .a-title{font-size:.58rem;color:#00ff87;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-  .a-text{font-size:.78rem;color:#bbb;line-height:1.6}
-  .verdict{background:linear-gradient(135deg,#00ff8710,#00ff8703);border:1px solid #00ff8733;border-radius:9px;padding:14px 16px;margin-top:10px}
-  .verdict-label{font-size:.58rem;color:#00ff87;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
-  .verdict-text{font-size:.82rem;color:#ddd;line-height:1.7}
-  .badge{display:inline-block;margin-top:8px;background:#00ff87;color:#000;border-radius:4px;padding:2px 9px;font-size:.66rem;font-weight:900}
-  .prediction{text-align:center;margin-bottom:14px;color:#ffcc00;font-size:.85rem;font-weight:700}
-  .disclaimer{text-align:center;color:#2a2a3a;font-size:.6rem;margin-top:24px;line-height:1.6}
-  .hidden{display:none}
-  /* API Key setup */
-  .key-hint{font-size:.65rem;color:#555;margin-top:6px;line-height:1.6}
-  .key-hint a{color:#00ff87}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0f;color:#e8e8f0;font-family:'Courier New',monospace;min-height:100vh;padding:20px 14px}
+.header{text-align:center;margin-bottom:24px}
+.title{font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;color:#00ff87;letter-spacing:.06em;text-transform:uppercase}
+.subtitle{color:#555;font-size:.7rem;margin-top:5px;letter-spacing:.1em;text-transform:uppercase}
+.card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:16px;max-width:700px;margin:0 auto 14px}
+label{display:block;color:#888;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.input-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px}
+input,select{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;color:#e8e8f0;padding:10px 11px;font-size:.88rem;font-family:inherit;outline:none;width:100%}
+input:focus,select:focus{border-color:#00ff87}
+select{cursor:pointer;margin-bottom:10px}
+.vs{color:#00ff87;font-weight:900;font-size:.9rem;text-align:center}
+.btn{width:100%;padding:12px;background:#00ff87;color:#000;border:none;border-radius:8px;font-size:.84rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.keys-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.key-hint{font-size:.6rem;color:#444;margin-top:4px}
+.agent-row{max-width:700px;margin:0 auto 12px;display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.agent-box{background:#12121a;border:1px solid #1e1e2e;border-radius:9px;padding:8px 4px;text-align:center;transition:border-color .3s}
+.agent-icon{font-size:1rem;margin-bottom:2px}
+.agent-name{font-size:.48rem;color:#555;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.agent-status{font-size:.56rem;font-weight:700}
+.log-box{background:#0a0a10;border:1px solid #1a1a2a;border-radius:8px;padding:9px;max-width:700px;margin:0 auto 12px;font-size:.65rem;color:#555;line-height:1.9;max-height:160px;overflow-y:auto}
+.err-box{background:#180808;border:1px solid #ff4444;border-radius:8px;padding:11px;color:#ff8888;font-size:.78rem;max-width:700px;margin:0 auto 12px;line-height:1.6}
+.result-card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:18px;max-width:700px;margin:0 auto;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.pulse{animation:pulse .85s ease infinite}
+.match-title{text-align:center;font-size:1rem;font-weight:900;color:#00ff87;margin-bottom:2px}
+.match-meta{text-align:center;color:#555;font-size:.66rem;margin-bottom:16px}
+.odds-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px}
+.odds-box{background:#0d0d17;border:1px solid #1e1e2e;border-radius:9px;padding:11px 6px;text-align:center;transition:border-color .3s,box-shadow .3s}
+.odds-label{font-size:.52rem;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.odds-value{font-size:1.45rem;font-weight:900;line-height:1;margin-bottom:2px}
+.odds-bar-bg{height:3px;border-radius:2px;background:#1e1e2e;margin-top:6px;overflow:hidden}
+.odds-bar{height:100%;border-radius:2px}
+.section-title{font-size:.6rem;color:#444;text-transform:uppercase;letter-spacing:.12em;border-top:1px solid #1e1e2e;padding-top:14px;margin-bottom:9px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.a-item{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;padding:10px}
+.a-title{font-size:.56rem;color:#00ff87;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.a-text{font-size:.74rem;color:#bbb;line-height:1.6}
+.verdict{background:linear-gradient(135deg,#00ff8710,#00ff8703);border:1px solid #00ff8733;border-radius:9px;padding:13px 15px;margin-top:10px}
+.verdict-label{font-size:.56rem;color:#00ff87;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.verdict-text{font-size:.8rem;color:#ddd;line-height:1.7}
+.badge{display:inline-block;margin-top:7px;background:#00ff87;color:#000;border-radius:4px;padding:2px 8px;font-size:.64rem;font-weight:900}
+.prediction{text-align:center;margin-bottom:12px;color:#ffcc00;font-size:.82rem;font-weight:700}
+.data-sources{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.src-badge{font-size:.58rem;padding:2px 7px;border-radius:4px;border:1px solid #1e1e2e;color:#555}
+.src-ok{border-color:#00ff8744;color:#00ff87}
+.src-fail{border-color:#ff444444;color:#ff6666}
+.disclaimer{text-align:center;color:#2a2a3a;font-size:.58rem;margin-top:22px;line-height:1.6}
+.hidden{display:none}
+.section-live{border-color:#00ff8733!important}
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="title">⚽ Football Multi-Agent AI</div>
-  <div class="subtitle">4 Agents • วิเคราะห์ฟุตบอลอัตโนมัติ</div>
+  <div class="subtitle">5 Agents • Real-time Data • วิเคราะห์เชิงลึก</div>
 </div>
 
-<!-- API Key Card -->
-<div class="card" id="keyCard">
-  <label>🔑 Anthropic API Key</label>
-  <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
-  <div class="key-hint">
-    ขอ key ฟรีได้ที่ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
-    Key จะเก็บในเครื่องคุณเท่านั้น ไม่ส่งที่ไหน (นอกจาก Anthropic API โดยตรง)
+<!-- Keys -->
+<div class="card">
+  <div style="color:#00ff87;font-size:.68rem;font-weight:700;margin-bottom:10px;letter-spacing:.08em">🔑 API KEYS</div>
+  <div class="keys-grid">
+    <div>
+      <label>Anthropic</label>
+      <input type="password" id="keyAnthropic" placeholder="sk-ant-..." />
+    </div>
+    <div>
+      <label>Football-data.org</label>
+      <input type="text" id="keyFootball" placeholder="9151cb..." />
+    </div>
   </div>
+  <div>
+    <label>Tavily Search</label>
+    <input type="text" id="keyTavily" placeholder="tvly-dev-..." />
+  </div>
+  <div class="key-hint">Keys เก็บในเครื่องคุณเท่านั้น ส่งตรงถึง API แต่ละเจ้า</div>
 </div>
 
-<!-- Analyze Card -->
+<!-- Match Input -->
 <div class="card">
   <div class="input-row">
     <div>
@@ -87,51 +101,33 @@
   </div>
   <label>การแข่งขัน</label>
   <select id="competition">
-    <option>Premier League</option>
-    <option>La Liga</option>
-    <option>Bundesliga</option>
-    <option>Serie A</option>
-    <option>Ligue 1</option>
-    <option>Champions League</option>
-    <option>Europa League</option>
-    <option>Thai League</option>
-    <option>MLS</option>
-    <option>อื่นๆ</option>
+    <option value="PL">Premier League</option>
+    <option value="PD">La Liga</option>
+    <option value="BL1">Bundesliga</option>
+    <option value="SA">Serie A</option>
+    <option value="FL1">Ligue 1</option>
+    <option value="CL">Champions League</option>
+    <option value="EL">Europa League</option>
+    <option value="OTHER">อื่นๆ</option>
   </select>
-  <button class="btn" id="analyzeBtn" onclick="runPipeline()">🚀 เริ่มวิเคราะห์ 4 Agents</button>
+  <button class="btn" id="analyzeBtn" onclick="runPipeline()">🚀 เริ่มวิเคราะห์ 5 Agents</button>
 </div>
+
+<!-- Data Sources Status -->
+<div class="data-sources" id="dataSources" style="max-width:700px;margin:0 auto 12px"></div>
 
 <!-- Agent Status -->
 <div class="agent-row">
-  <div class="agent-box" id="agentNews">
-    <div class="agent-icon">📰</div>
-    <div class="agent-name">News</div>
-    <div class="agent-status" style="color:#383838">รอ</div>
-  </div>
-  <div class="agent-box" id="agentStats">
-    <div class="agent-icon">📊</div>
-    <div class="agent-name">Stats</div>
-    <div class="agent-status" style="color:#383838">รอ</div>
-  </div>
-  <div class="agent-box" id="agentFactor">
-    <div class="agent-icon">🌐</div>
-    <div class="agent-name">Factor</div>
-    <div class="agent-status" style="color:#383838">รอ</div>
-  </div>
-  <div class="agent-box" id="agentFinal">
-    <div class="agent-icon">🧠</div>
-    <div class="agent-name">Analyst</div>
-    <div class="agent-status" style="color:#383838">รอ</div>
-  </div>
+  <div class="agent-box" id="agentData"><div class="agent-icon">📡</div><div class="agent-name">Data</div><div class="agent-status" style="color:#383838">รอ</div></div>
+  <div class="agent-box" id="agentNews"><div class="agent-icon">📰</div><div class="agent-name">News</div><div class="agent-status" style="color:#383838">รอ</div></div>
+  <div class="agent-box" id="agentStats"><div class="agent-icon">📊</div><div class="agent-name">Stats</div><div class="agent-status" style="color:#383838">รอ</div></div>
+  <div class="agent-box" id="agentFactor"><div class="agent-icon">🌐</div><div class="agent-name">Factor</div><div class="agent-status" style="color:#383838">รอ</div></div>
+  <div class="agent-box" id="agentFinal"><div class="agent-icon">🧠</div><div class="agent-name">Analyst</div><div class="agent-status" style="color:#383838">รอ</div></div>
 </div>
 
-<!-- Log -->
 <div class="log-box hidden" id="logBox"></div>
-
-<!-- Error -->
 <div class="err-box hidden" id="errBox"></div>
 
-<!-- Result -->
 <div class="result-card hidden" id="resultCard">
   <div class="match-title" id="rTitle"></div>
   <div class="match-meta" id="rMeta"></div>
@@ -153,7 +149,7 @@
     </div>
   </div>
   <div class="prediction" id="rPrediction"></div>
-  <div class="section-title">รายงานจาก 3 Agents</div>
+  <div class="section-title">รายงานจาก 5 Agents</div>
   <div class="grid2" id="sectionsGrid"></div>
   <div class="verdict">
     <div class="verdict-label">🧠 สรุปจาก Analyst Agent</div>
@@ -162,54 +158,61 @@
   </div>
 </div>
 
-<div class="disclaimer">
-  ⚠️ วิเคราะห์จาก AI — ไม่ใช่คำแนะนำการพนัน<br>
-  ใส่ชื่อทีมภาษาไทยหรืออังกฤษได้
-</div>
+<div class="disclaimer">⚠️ วิเคราะห์จาก AI + ข้อมูลสด — ไม่ใช่คำแนะนำการพนัน</div>
 
 <script>
-const SECTION_LABELS = {
-  head_to_head:"📊 H2H", recent_form:"🔥 ฟอร์ม",
-  injury_news:"🚑 บาดเจ็บ", tactical:"⚙️ ยุทธวิธี", other_factors:"🌐 ปัจจัยอื่น"
+const LABELS = {
+  head_to_head:"📊 H2H",recent_form:"🔥 ฟอร์ม",
+  injury_news:"🚑 บาดเจ็บ/แขวน",tactical:"⚙️ ยุทธวิธี",
+  match_importance:"🎯 ความสำคัญนัด",other_factors:"🌐 ปัจจัยอื่น"
 };
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
 function setAgent(id, status) {
   const el = document.getElementById(id);
-  const statusEl = el.querySelector('.agent-status');
-  const iconEl = el.querySelector('.agent-icon');
-  const colors = {idle:"#383838", running:"#00ff87", done:"#3399ff", error:"#ff4444"};
-  const labels = {idle:"รอ", running:"ทำงาน...", done:"✓ เสร็จ", error:"✗ Error"};
-  statusEl.style.color = colors[status];
-  statusEl.textContent = labels[status];
-  el.style.borderColor = status !== 'idle' ? colors[status]+'55' : '#1e1e2e';
-  if(status === 'running') {
-    iconEl.classList.add('pulse');
-  } else {
-    iconEl.classList.remove('pulse');
-  }
+  const s = el.querySelector('.agent-status');
+  const ic = el.querySelector('.agent-icon');
+  const c = {idle:"#383838",running:"#00ff87",done:"#3399ff",error:"#ff4444"};
+  const t = {idle:"รอ",running:"ทำงาน...",done:"✓ เสร็จ",error:"✗ Error"};
+  s.style.color = c[status]; s.textContent = t[status];
+  el.style.borderColor = status!=='idle' ? c[status]+'55' : '#1e1e2e';
+  status==='running' ? ic.classList.add('pulse') : ic.classList.remove('pulse');
 }
 
 function addLog(msg) {
-  const box = document.getElementById('logBox');
-  box.classList.remove('hidden');
-  box.innerHTML += '<div>'+msg+'</div>';
-  box.scrollTop = box.scrollHeight;
+  const b = document.getElementById('logBox');
+  b.classList.remove('hidden');
+  b.innerHTML += '<div>'+msg+'</div>';
+  b.scrollTop = b.scrollHeight;
 }
 
 function showError(msg) {
-  const box = document.getElementById('errBox');
-  box.classList.remove('hidden');
-  box.textContent = msg;
+  const b = document.getElementById('errBox');
+  b.classList.remove('hidden');
+  b.textContent = msg;
 }
 
 function resetUI() {
-  ['logBox','errBox','resultCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
-  document.getElementById('logBox').innerHTML = '';
-  document.getElementById('errBox').textContent = '';
-  ['agentNews','agentStats','agentFactor','agentFinal'].forEach(id => setAgent(id,'idle'));
+  ['logBox','errBox','resultCard','dataSources'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.add('hidden');
+    if(id==='logBox'||id==='errBox') el.innerHTML='';
+  });
+  document.getElementById('dataSources').innerHTML = '';
+  document.getElementById('dataSources').classList.remove('hidden');
+  ['agentData','agentNews','agentStats','agentFactor','agentFinal'].forEach(id=>setAgent(id,'idle'));
 }
 
-async function askAgent(apiKey, system, user) {
+function addSourceBadge(name, ok) {
+  const b = document.getElementById('dataSources');
+  const d = document.createElement('span');
+  d.className = 'src-badge '+(ok?'src-ok':'src-fail');
+  d.textContent = (ok?'✓ ':'✗ ')+name;
+  b.appendChild(d);
+}
+
+// ── Claude API ───────────────────────────────────────────────────────────────
+async function askClaude(apiKey, system, user) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method:"POST",
     headers:{
@@ -218,104 +221,282 @@ async function askAgent(apiKey, system, user) {
       "anthropic-version":"2023-06-01",
       "anthropic-dangerous-direct-browser-access":"true"
     },
-    body:JSON.stringify({
+    body: JSON.stringify({
       model:"claude-sonnet-4-5",
-      max_tokens:700,
-      system: system,
-      messages:[{role:"user", content:user}]
+      max_tokens:900,
+      system,
+      messages:[{role:"user",content:user}]
     })
   });
   const d = await r.json();
   if(!r.ok) {
     if(d.type==="exceeded_limit"||r.status===429) {
-      const resetsAt = d.resetsAt||(d.windows&&d.windows["5h"]&&d.windows["5h"].resets_at)||0;
-      if(resetsAt) {
-        const resetDate = new Date(resetsAt*1000);
-        const diffMin = Math.max(0,Math.ceil((resetDate-new Date())/60000));
-        const hr = Math.floor(diffMin/60), mn = diffMin%60;
-        throw new Error("⛔ Quota หมด — รออีก "+(hr>0?hr+"ชม. ":"")+mn+"นาที (reset "+resetDate.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+")");
+      const ra = d.resetsAt||(d.windows&&d.windows["5h"]&&d.windows["5h"].resets_at)||0;
+      if(ra) {
+        const rd = new Date(ra*1000);
+        const dm = Math.max(0,Math.ceil((rd-new Date())/60000));
+        throw new Error("⛔ Quota หมด — รออีก "+Math.floor(dm/60)+"ชม. "+(dm%60)+"นาที (reset "+rd.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+")");
       }
-      throw new Error("⛔ Quota หมด — รอสักครู่แล้วลองใหม่");
+      throw new Error("⛔ Quota หมด — รอสักครู่");
     }
-    if(r.status===401) throw new Error("🔑 API Key ไม่ถูกต้อง — ตรวจสอบ key อีกครั้ง");
-    throw new Error("API Error "+r.status+": "+(d.error&&d.error.message||JSON.stringify(d).slice(0,150)));
+    if(r.status===401) throw new Error("🔑 Anthropic API Key ไม่ถูกต้อง");
+    throw new Error("Anthropic Error "+r.status+": "+(d.error&&d.error.message||JSON.stringify(d).slice(0,120)));
   }
   const txt = (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
-  if(!txt) throw new Error("AI ไม่ตอบกลับ (stop_reason: "+d.stop_reason+")");
+  if(!txt) throw new Error("Claude ไม่ตอบกลับ");
   return txt;
 }
 
+// ── Football-data.org ────────────────────────────────────────────────────────
+async function fetchFootballData(fbKey, comp, home, away) {
+  const result = { standings:null, matches:null, ok:false };
+  try {
+    // Standings
+    const sr = await fetch("https://api.football-data.org/v4/competitions/"+comp+"/standings", {
+      headers:{"X-Auth-Token": fbKey}
+    });
+    if(sr.ok) {
+      const sd = await sr.json();
+      result.standings = sd.standings;
+      result.ok = true;
+    }
+  } catch(e) {}
+  try {
+    // Recent matches for competition
+    const today = new Date().toISOString().split('T')[0];
+    const from = new Date(Date.now()-30*24*60*60*1000).toISOString().split('T')[0];
+    const mr = await fetch("https://api.football-data.org/v4/competitions/"+comp+"/matches?dateFrom="+from+"&dateTo="+today+"&status=FINISHED", {
+      headers:{"X-Auth-Token": fbKey}
+    });
+    if(mr.ok) {
+      const md = await mr.json();
+      result.matches = md.matches;
+      result.ok = true;
+    }
+  } catch(e) {}
+  return result;
+}
+
+function parseStandings(standings, home, away) {
+  if(!standings) return "";
+  let txt = "";
+  try {
+    const table = standings[0]&&standings[0].table;
+    if(!table) return "";
+    const norm = s => s.toLowerCase().replace(/\s+/g,'');
+    const hN = norm(home), aN = norm(away);
+    let hRow=null, aRow=null;
+    table.forEach(row => {
+      const tn = norm(row.team.name);
+      if(tn.includes(hN)||hN.includes(tn)) hRow=row;
+      if(tn.includes(aN)||aN.includes(tn)) aRow=row;
+    });
+    if(hRow) txt += home+": อันดับ "+hRow.position+" | คะแนน "+hRow.points+" | "+hRow.won+"ชนะ "+hRow.draw+"เสมอ "+hRow.lost+"แพ้ | ประตูได้ "+hRow.goalsFor+" เสีย "+hRow.goalsAgainst+"\n";
+    if(aRow) txt += away+": อันดับ "+aRow.position+" | คะแนน "+aRow.points+" | "+aRow.won+"ชนะ "+aRow.draw+"เสมอ "+aRow.lost+"แพ้ | ประตูได้ "+aRow.goalsFor+" เสีย "+aRow.goalsAgainst+"\n";
+    if(hRow&&aRow) {
+      const gap = Math.abs(hRow.points-aRow.points);
+      txt += "ห่างกัน "+gap+" คะแนน (อันดับ "+hRow.position+" vs "+aRow.position+")\n";
+    }
+  } catch(e) {}
+  return txt;
+}
+
+function parseRecentMatches(matches, teamName) {
+  if(!matches||!matches.length) return "";
+  const norm = s => s.toLowerCase().replace(/\s+/g,'');
+  const tn = norm(teamName);
+  const team = matches.filter(m =>
+    norm(m.homeTeam.name).includes(tn)||tn.includes(norm(m.homeTeam.name))||
+    norm(m.awayTeam.name).includes(tn)||tn.includes(norm(m.awayTeam.name))
+  ).slice(-6);
+  if(!team.length) return "";
+  let txt = teamName+" (6 นัดล่าสุด):\n";
+  team.forEach(m => {
+    const isHome = norm(m.homeTeam.name).includes(tn)||tn.includes(norm(m.homeTeam.name));
+    const hg = m.score.fullTime.home, ag = m.score.fullTime.away;
+    let res = isHome ? (hg>ag?"ชนะ":hg===ag?"เสมอ":"แพ้") : (ag>hg?"ชนะ":ag===hg?"เสมอ":"แพ้");
+    const opp = isHome ? m.awayTeam.name : m.homeTeam.name;
+    txt += "  "+res+" "+hg+"-"+ag+" vs "+opp+(isHome?" (บ้าน)":" (เยือน)")+"\n";
+  });
+  return txt;
+}
+
+// ── Tavily Search ────────────────────────────────────────────────────────────
+async function tavilySearch(tavilyKey, query) {
+  try {
+    const r = await fetch("https://api.tavily.com/search", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        api_key: tavilyKey,
+        query: query,
+        search_depth:"advanced",
+        max_results:5,
+        include_answer:true
+      })
+    });
+    if(!r.ok) return null;
+    const d = await r.json();
+    let txt = d.answer ? d.answer+"\n\n" : "";
+    (d.results||[]).slice(0,3).forEach(res => {
+      txt += "• "+res.title+": "+res.content.slice(0,200)+"\n";
+    });
+    return txt;
+  } catch(e) { return null; }
+}
+
+// ── JSON Extractor ───────────────────────────────────────────────────────────
 function extractJSON(raw) {
   let s = raw.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
   try { const j=JSON.parse(s); if(j.home_win!==undefined) return j; } catch(e){}
-  const a=s.indexOf("{"), b=s.lastIndexOf("}");
+  const a=s.indexOf("{"),b=s.lastIndexOf("}");
   if(a!==-1&&b>a){ try{ const j=JSON.parse(s.slice(a,b+1)); if(j.home_win!==undefined) return j; }catch(e){} }
   const num=k=>{ const m=s.match(new RegExp('"'+k+'"\\s*:\\s*(\\d+(?:\\.\\d+)?)'));return m?parseFloat(m[1]):null; };
   const str=k=>{ const m=s.match(new RegExp('"'+k+'"\\s*:\\s*"([^"]*)"'));return m?m[1]:null; };
   const hw=num("home_win"),dr=num("draw"),aw=num("away_win");
   if(hw!==null&&dr!==null&&aw!==null){
-    const sections={};
-    ["head_to_head","recent_form","injury_news","tactical","other_factors"].forEach(k=>{const v=str(k);if(v)sections[k]=v;});
-    return{home_win:hw,draw:dr,away_win:aw,confidence:str("confidence")||"Medium",verdict:str("verdict")||"",prediction:str("prediction")||"",sections};
+    const sec={};
+    ["head_to_head","recent_form","injury_news","tactical","match_importance","other_factors"].forEach(k=>{const v=str(k);if(v)sec[k]=v;});
+    return{home_win:hw,draw:dr,away_win:aw,confidence:str("confidence")||"Medium",verdict:str("verdict")||"",prediction:str("prediction")||"",sections:sec};
   }
   return null;
 }
 
+// ── Main Pipeline ────────────────────────────────────────────────────────────
 async function runPipeline() {
-  const apiKey = document.getElementById('apiKey').value.trim();
-  const homeTeam = document.getElementById('homeTeam').value.trim();
-  const awayTeam = document.getElementById('awayTeam').value.trim();
-  const competition = document.getElementById('competition').value;
+  const kA = document.getElementById('keyAnthropic').value.trim();
+  const kF = document.getElementById('keyFootball').value.trim();
+  const kT = document.getElementById('keyTavily').value.trim();
+  const home = document.getElementById('homeTeam').value.trim();
+  const away = document.getElementById('awayTeam').value.trim();
+  const compEl = document.getElementById('competition');
+  const compCode = compEl.value;
+  const compName = compEl.options[compEl.selectedIndex].text;
 
-  if(!apiKey) { alert("กรุณาใส่ API Key ก่อนครับ"); return; }
-  if(!homeTeam||!awayTeam) { alert("กรุณาใส่ชื่อทีมทั้งสองฝ่าย"); return; }
+  if(!kA){alert("ใส่ Anthropic API Key ก่อนครับ");return;}
+  if(!home||!away){alert("ใส่ชื่อทีมทั้งสองก่อนครับ");return;}
 
   resetUI();
   const btn = document.getElementById('analyzeBtn');
-  btn.disabled = true;
-  btn.textContent = "🔄 กำลังวิเคราะห์...";
+  btn.disabled=true; btn.textContent="🔄 กำลังวิเคราะห์...";
 
-  let n="",st="",f="";
+  let fbData={ok:false}, newsData="", statsData="", factorData="", liveData="";
+
   try {
-    // Agent 1 News
-    setAgent('agentNews','running'); addLog("📰 News Agent...");
-    n = await askAgent(apiKey,
-      "คุณเป็นนักวิเคราะห์ข่าวฟุตบอล ตอบภาษาไทย กระชับ",
-      "วิเคราะห์ข้อมูลที่รู้จักของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
-      "1. นักเตะสำคัญที่มักบาดเจ็บหรือขาด\n2. การเปลี่ยนโค้ช/ยุทธวิธีที่รู้จัก\n3. ปัญหาทีมที่มักพบ\nตอบ 4 บุลเลตพอยต์ภาษาไทย"
-    );
-    setAgent('agentNews','done'); addLog("✅ News เสร็จ");
+    // ── AGENT 1: DATA COLLECTOR ──────────────────────────────────────────────
+    setAgent('agentData','running'); addLog("📡 Data Agent: ดึงข้อมูลสด...");
 
-    // Agent 2 Stats
-    setAgent('agentStats','running'); addLog("📊 Stats Agent...");
-    st = await askAgent(apiKey,
-      "คุณเป็นนักสถิติฟุตบอล ตอบภาษาไทย ระบุตัวเลข",
-      "สถิติที่รู้จักของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
-      "1. H2H โดยประมาณ\n2. ฟอร์มบ้าน "+homeTeam+"\n3. ฟอร์มเยือน "+awayTeam+"\n4. เฉลี่ยประตู\nตอบ 5 บุลเลตพอยต์"
-    );
-    setAgent('agentStats','done'); addLog("✅ Stats เสร็จ");
+    // Fetch football stats
+    if(kF && compCode!=='OTHER') {
+      fbData = await fetchFootballData(kF, compCode, home, away);
+      addSourceBadge("Football-data.org", fbData.ok);
+      if(fbData.ok) addLog("✅ ได้ข้อมูลตาราง/ผลบอลล่าสุด");
+      else addLog("⚠️ Football-data: ดึงข้อมูลไม่ได้ (ใช้ AI แทน)");
+    }
 
-    // Agent 3 Factor
-    setAgent('agentFactor','running'); addLog("🌐 Factor Agent...");
-    f = await askAgent(apiKey,
-      "คุณเป็นนักวิเคราะห์บริบทฟุตบอล ตอบภาษาไทย",
-      "ปัจจัยบริบทของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
-      "1. ระดับและเป้าหมายในลีก\n2. ความได้เปรียบสนาม\n3. รูปแบบการเล่น\n4. แรงจูงใจ\nตอบ 4 บุลเลตพอยต์"
-    );
-    setAgent('agentFactor','done'); addLog("✅ Factor เสร็จ");
+    // Build live data string
+    if(fbData.standings) {
+      liveData += "=== ตารางคะแนนปัจจุบัน ===\n";
+      liveData += parseStandings(fbData.standings, home, away);
+    }
+    if(fbData.matches) {
+      liveData += "\n=== ผลการแข่งขันล่าสุด ===\n";
+      liveData += parseRecentMatches(fbData.matches, home);
+      liveData += parseRecentMatches(fbData.matches, away);
+    }
 
-    // Agent 4 Analyst
-    setAgent('agentFinal','running'); addLog("🧠 Analyst Agent...");
-    const combined = "HOME:"+homeTeam+"\nAWAY:"+awayTeam+"\nCOMP:"+competition+"\n\n[NEWS]\n"+n+"\n\n[STATS]\n"+st+"\n\n[FACTOR]\n"+f;
-    const raw = await askAgent(apiKey,
-      "You output ONLY valid JSON. Start with { end with }. No text before or after.",
-      "Analyze this football data and output ONLY JSON:\n\n"+combined+
-      "\n\nJSON (real numbers summing to 100):\n"+
+    // Fetch news
+    if(kT) {
+      addLog("🔍 ค้นข่าวจาก Tavily...");
+      const today = new Date().toLocaleDateString('en-GB');
+      const news1 = await tavilySearch(kT, home+" vs "+away+" "+compName+" injury news team news "+today);
+      const news2 = await tavilySearch(kT, home+" "+away+" match preview prediction "+compName+" 2025");
+      if(news1||news2) {
+        liveData += "\n=== ข่าวและบาดเจ็บล่าสุด ===\n"+(news1||"")+(news2||"");
+        addSourceBadge("Tavily News", true);
+        addLog("✅ ได้ข่าวสดจาก Tavily");
+      } else {
+        addSourceBadge("Tavily News", false);
+        addLog("⚠️ Tavily: ดึงข่าวไม่ได้");
+      }
+    }
+
+    setAgent('agentData','done');
+
+    // ── AGENT 2: NEWS ANALYST ────────────────────────────────────────────────
+    setAgent('agentNews','running'); addLog("📰 News Agent: วิเคราะห์ข่าว...");
+    newsData = await askClaude(kA,
+      "คุณเป็นนักวิเคราะห์ข่าวฟุตบอล ตอบภาษาไทย กระชับ ข้อมูลสำคัญ",
+      "แมตช์: "+home+" vs "+away+" ("+compName+")\n\n"+
+      (liveData ? "ข้อมูลสด:\n"+liveData+"\n\n" : "")+
+      "วิเคราะห์:\n"+
+      "1. นักเตะบาดเจ็บหรือถูกแขวนใบเหลือง/แดง (ทั้งสองทีม)\n"+
+      "2. ทีมชุดล่าสุดและการโรเทตผู้เล่น\n"+
+      "3. ข่าวโค้ชและการเปลี่ยนยุทธวิธีล่าสุด\n"+
+      "4. สภาพฟิตเนสนักเตะหลัก\n"+
+      "ตอบ 5-6 บุลเลตพอยต์ภาษาไทย"
+    );
+    setAgent('agentNews','done'); addLog("✅ News Agent เสร็จ");
+
+    // ── AGENT 3: STATS ANALYST ───────────────────────────────────────────────
+    setAgent('agentStats','running'); addLog("📊 Stats Agent: วิเคราะห์สถิติ...");
+    statsData = await askClaude(kA,
+      "คุณเป็นนักสถิติฟุตบอล ตอบภาษาไทย ระบุตัวเลขให้ชัดเจน",
+      "แมตช์: "+home+" vs "+away+" ("+compName+")\n\n"+
+      (liveData ? "ข้อมูลจริงจาก API:\n"+liveData+"\n\n" : "")+
+      "วิเคราะห์:\n"+
+      "1. H2H: สถิติการพบกัน ชนะ/เสมอ/แพ้ ประตูเฉลี่ย\n"+
+      "2. ฟอร์มล่าสุด 6 นัดของ"+home+" (บ้าน)\n"+
+      "3. ฟอร์มล่าสุด 6 นัดของ"+away+" (เยือน)\n"+
+      "4. สถิติการทำและเสียประตู ทั้งบ้านและเยือน\n"+
+      "5. แนวโน้มผล: มักมีประตูมากหรือน้อย เสมอบ่อยไหม\n"+
+      "ตอบ 5-6 บุลเลตพอยต์ ระบุตัวเลขให้ชัดเจน"
+    );
+    setAgent('agentStats','done'); addLog("✅ Stats Agent เสร็จ");
+
+    // ── AGENT 4: FACTOR ANALYST ──────────────────────────────────────────────
+    setAgent('agentFactor','running'); addLog("🌐 Factor Agent: วิเคราะห์ปัจจัย...");
+    factorData = await askClaude(kA,
+      "คุณเป็นนักวิเคราะห์ยุทธศาสตร์ฟุตบอล ตอบภาษาไทย เน้นปัจจัยที่ส่งผลต่อผลเกม",
+      "แมตช์: "+home+" vs "+away+" ("+compName+")\n\n"+
+      (liveData ? "ข้อมูลตาราง:\n"+liveData+"\n\n" : "")+
+      "วิเคราะห์ปัจจัยเหล่านี้:\n"+
+      "1. ความสำคัญของนัดนี้ต่อแต่ละทีม: ต้องชนะ? เสมอก็พอ? หรือเป็นนัดปิดซีซัน?\n"+
+      "2. แต่ละทีมจะ 'ใส่เต็ม' หรือ 'โรเทต/ผ่อน' เพราะอะไร?\n"+
+      "3. ยุทธวิธีที่น่าจะใช้ของแต่ละทีม และจุดที่ matchup กัน\n"+
+      "4. ความได้เปรียบสนามเหย้าของ"+home+"\n"+
+      "5. แรงกดดัน ความมั่นใจ โมเมนตัมของทั้งสองทีม\n"+
+      "6. ปัจจัยอื่น: derby? ประวัติความบาดหมาง? สภาพอากาศ?\n"+
+      "ตอบ 6-7 บุลเลตพอยต์ภาษาไทย"
+    );
+    setAgent('agentFactor','done'); addLog("✅ Factor Agent เสร็จ");
+
+    // ── AGENT 5: MASTER ANALYST ──────────────────────────────────────────────
+    setAgent('agentFinal','running'); addLog("🧠 Analyst Agent: สรุปผลการวิเคราะห์...");
+
+    const allData =
+      "แมตช์: "+home+" vs "+away+" ("+compName+")\n"+
+      "วันที่วิเคราะห์: "+new Date().toLocaleDateString('th-TH')+"\n\n"+
+      "=== ข้อมูลสดจาก API ===\n"+(liveData||"ไม่มีข้อมูล API\n")+"\n"+
+      "=== NEWS AGENT ===\n"+newsData+"\n\n"+
+      "=== STATS AGENT ===\n"+statsData+"\n\n"+
+      "=== FACTOR AGENT ===\n"+factorData;
+
+    const raw = await askClaude(kA,
+      "You are the chief football analyst. Output ONLY valid JSON starting with { and ending with }. No text before or after. No markdown.",
+      "Based on all research data below, provide final probability assessment.\n\n"+allData+
+      "\n\nOutput ONLY this JSON (replace all values with real analysis, numbers must sum to 100):\n"+
       "{\"home_win\":45,\"draw\":27,\"away_win\":28,"+
-      "\"confidence\":\"Low/Medium/High - เหตุผลภาษาไทย\","+
-      "\"verdict\":\"สรุป 2-3 ประโยคภาษาไทย\","+
-      "\"prediction\":\"ผลที่น่าจะเป็น\","+
-      "\"sections\":{\"head_to_head\":\"ไทย\",\"recent_form\":\"ไทย\",\"injury_news\":\"ไทย\",\"tactical\":\"ไทย\",\"other_factors\":\"ไทย\"}}"
+      "\"confidence\":\"Low/Medium/High - เหตุผลสั้นๆภาษาไทย\","+
+      "\"verdict\":\"สรุปการวิเคราะห์ 2-3 ประโยคภาษาไทย ครอบคลุมปัจจัยหลัก\","+
+      "\"prediction\":\"ผลที่น่าจะเป็น เช่น ชนะ 2-1 หรือ เสมอ 1-1\","+
+      "\"sections\":{"+
+      "\"head_to_head\":\"สรุปสถิติ H2H จริงภาษาไทย\","+
+      "\"recent_form\":\"ฟอร์มล่าสุดทั้งสองทีมภาษาไทย\","+
+      "\"injury_news\":\"ข้อมูลบาดเจ็บและทีมชุดภาษาไทย\","+
+      "\"tactical\":\"การวิเคราะห์ยุทธวิธีและการ matchup ภาษาไทย\","+
+      "\"match_importance\":\"ความสำคัญนัดนี้และแนวโน้มการใส่เต็มหรือโรเทต\","+
+      "\"other_factors\":\"ปัจจัยอื่นที่ส่งผลภาษาไทย\"}}"
     );
 
     const json = extractJSON(raw);
@@ -325,61 +506,63 @@ async function runPipeline() {
     const hw = Math.round(json.home_win/total*100);
     const dr = Math.round(json.draw/total*100);
     const aw = 100-hw-dr;
-    setAgent('agentFinal','done'); addLog("✅ วิเคราะห์เสร็จสมบูรณ์!");
+    setAgent('agentFinal','done'); addLog("🎉 วิเคราะห์เสร็จสมบูรณ์!");
 
-    // Show result
+    // Render result
     const mx = Math.max(hw,dr,aw);
-    document.getElementById('rTitle').textContent = homeTeam+" vs "+awayTeam;
-    document.getElementById('rMeta').textContent = competition+" • 4-Agent AI Analysis";
-    document.getElementById('labelHome').textContent = homeTeam+" ชนะ";
-    document.getElementById('labelAway').textContent = awayTeam+" ชนะ";
+    document.getElementById('rTitle').textContent = home+" vs "+away;
+    document.getElementById('rMeta').textContent = compName+" • 5-Agent AI + Real-time Data";
+    document.getElementById('labelHome').textContent = home+" ชนะ";
+    document.getElementById('labelAway').textContent = away+" ชนะ";
     document.getElementById('valHome').textContent = hw+"%";
     document.getElementById('valDraw').textContent = dr+"%";
     document.getElementById('valAway').textContent = aw+"%";
-    document.getElementById('barHome').style.width = hw+"%";
-    document.getElementById('barDraw').style.width = dr+"%";
-    document.getElementById('barAway').style.width = aw+"%";
+    setTimeout(()=>{
+      document.getElementById('barHome').style.width = hw+"%";
+      document.getElementById('barDraw').style.width = dr+"%";
+      document.getElementById('barAway').style.width = aw+"%";
+    },100);
     document.getElementById('boxHome').style.borderColor = hw===mx?"#00ff87":"#1e1e2e";
     document.getElementById('boxDraw').style.borderColor = dr===mx?"#ffcc00":"#1e1e2e";
     document.getElementById('boxAway').style.borderColor = aw===mx?"#ff6b6b":"#1e1e2e";
+    if(hw===mx) document.getElementById('boxHome').style.boxShadow="0 0 12px #00ff8718";
+    if(dr===mx) document.getElementById('boxDraw').style.boxShadow="0 0 12px #ffcc0018";
+    if(aw===mx) document.getElementById('boxAway').style.boxShadow="0 0 12px #ff6b6b18";
     document.getElementById('rPrediction').textContent = json.prediction?"🎯 "+json.prediction:"";
     document.getElementById('rVerdict').textContent = json.verdict||"";
     document.getElementById('rConfidence').textContent = json.confidence?"ความมั่นใจ: "+json.confidence:"";
-
     const grid = document.getElementById('sectionsGrid');
-    grid.innerHTML = "";
+    grid.innerHTML="";
     Object.entries(json.sections||{}).forEach(([k,v])=>{
       if(!v) return;
-      const div = document.createElement('div');
-      div.className = 'a-item';
-      div.innerHTML = '<div class="a-title">'+(SECTION_LABELS[k]||k)+'</div><div class="a-text">'+v+'</div>';
-      grid.appendChild(div);
+      const d2 = document.createElement('div');
+      d2.className='a-item';
+      d2.innerHTML='<div class="a-title">'+(LABELS[k]||k)+'</div><div class="a-text">'+v+'</div>';
+      grid.appendChild(d2);
     });
-
     document.getElementById('resultCard').classList.remove('hidden');
 
   } catch(e) {
     const msg = e.message||String(e);
     showError("❌ "+msg);
-    addLog("❌ "+msg);
-    ['agentNews','agentStats','agentFactor','agentFinal'].forEach(id=>{
-      if(document.getElementById(id).querySelector('.agent-status').textContent==='ทำงาน...')
-        setAgent(id,'error');
+    addLog("❌ "+msg.slice(0,200));
+    ['agentData','agentNews','agentStats','agentFactor','agentFinal'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el.querySelector('.agent-status').textContent==='ทำงาน...')setAgent(id,'error');
     });
   } finally {
-    btn.disabled = false;
-    btn.textContent = "🚀 เริ่มวิเคราะห์ 4 Agents";
+    btn.disabled=false;
+    btn.textContent="🚀 เริ่มวิเคราะห์ 5 Agents";
   }
 }
 
-// Save API key to localStorage for convenience
-document.getElementById('apiKey').addEventListener('change', function(){
-  localStorage.setItem('fb_api_key', this.value);
+// Save keys locally
+['keyAnthropic','keyFootball','keyTavily'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('change',()=>localStorage.setItem('fb_'+id,el.value));
+  const saved=localStorage.getItem('fb_'+id);
+  if(saved) el.value=saved;
 });
-window.onload = function(){
-  const saved = localStorage.getItem('fb_api_key');
-  if(saved) document.getElementById('apiKey').value = saved;
-};
 </script>
 </body>
 </html>
