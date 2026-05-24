@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Football AI Analyzer</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0a0a0f;color:#e8e8f0;font-family:'Courier New',monospace;min-height:100vh;padding:20px 14px}
+  .header{text-align:center;margin-bottom:28px}
+  .title{font-size:clamp(1.2rem,4vw,1.9rem);font-weight:900;color:#00ff87;letter-spacing:.06em;text-transform:uppercase}
+  .subtitle{color:#555;font-size:.72rem;margin-top:6px;letter-spacing:.1em;text-transform:uppercase}
+  .card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:18px;max-width:700px;margin:0 auto 16px}
+  label{display:block;color:#888;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+  .input-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:12px}
+  input,select{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;color:#e8e8f0;padding:10px 12px;font-size:.9rem;font-family:inherit;outline:none;width:100%}
+  input:focus,select:focus{border-color:#00ff87}
+  select{cursor:pointer;margin-bottom:12px}
+  .vs{color:#00ff87;font-weight:900;font-size:.9rem;text-align:center}
+  .btn{width:100%;padding:13px;background:#00ff87;color:#000;border:none;border-radius:8px;font-size:.86rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-family:inherit}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .agent-row{max-width:700px;margin:0 auto 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .agent-box{background:#12121a;border:1px solid #1e1e2e;border-radius:10px;padding:10px 5px;text-align:center;transition:border-color .3s}
+  .agent-icon{font-size:1.1rem;margin-bottom:3px}
+  .agent-name{font-size:.53rem;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .agent-status{font-size:.6rem;font-weight:700}
+  .log-box{background:#0a0a10;border:1px solid #1a1a2a;border-radius:8px;padding:10px;max-width:700px;margin:0 auto 14px;font-size:.68rem;color:#555;line-height:1.9}
+  .err-box{background:#180808;border:1px solid #ff4444;border-radius:8px;padding:12px;color:#ff8888;font-size:.8rem;max-width:700px;margin:0 auto 14px;line-height:1.6}
+  .result-card{background:#12121a;border:1px solid #1e1e2e;border-radius:12px;padding:20px;max-width:700px;margin:0 auto;animation:fadeIn .5s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .pulse{animation:pulse .85s ease infinite}
+  .match-title{text-align:center;font-size:1rem;font-weight:900;color:#00ff87;margin-bottom:3px}
+  .match-meta{text-align:center;color:#555;font-size:.7rem;margin-bottom:20px}
+  .odds-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+  .odds-box{background:#0d0d17;border:1px solid #1e1e2e;border-radius:9px;padding:12px 7px;text-align:center;transition:border-color .3s,box-shadow .3s}
+  .odds-label{font-size:.54rem;color:#777;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .odds-value{font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:3px}
+  .odds-bar-bg{height:3px;border-radius:2px;background:#1e1e2e;margin-top:7px;overflow:hidden}
+  .odds-bar{height:100%;border-radius:2px;transition:width 1s ease}
+  .section-title{font-size:.63rem;color:#444;text-transform:uppercase;letter-spacing:.12em;border-top:1px solid #1e1e2e;padding-top:16px;margin-bottom:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .a-item{background:#0d0d17;border:1px solid #1e1e2e;border-radius:8px;padding:11px}
+  .a-title{font-size:.58rem;color:#00ff87;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+  .a-text{font-size:.78rem;color:#bbb;line-height:1.6}
+  .verdict{background:linear-gradient(135deg,#00ff8710,#00ff8703);border:1px solid #00ff8733;border-radius:9px;padding:14px 16px;margin-top:10px}
+  .verdict-label{font-size:.58rem;color:#00ff87;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+  .verdict-text{font-size:.82rem;color:#ddd;line-height:1.7}
+  .badge{display:inline-block;margin-top:8px;background:#00ff87;color:#000;border-radius:4px;padding:2px 9px;font-size:.66rem;font-weight:900}
+  .prediction{text-align:center;margin-bottom:14px;color:#ffcc00;font-size:.85rem;font-weight:700}
+  .disclaimer{text-align:center;color:#2a2a3a;font-size:.6rem;margin-top:24px;line-height:1.6}
+  .hidden{display:none}
+  /* API Key setup */
+  .key-hint{font-size:.65rem;color:#555;margin-top:6px;line-height:1.6}
+  .key-hint a{color:#00ff87}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="title">⚽ Football Multi-Agent AI</div>
+  <div class="subtitle">4 Agents • วิเคราะห์ฟุตบอลอัตโนมัติ</div>
+</div>
+
+<!-- API Key Card -->
+<div class="card" id="keyCard">
+  <label>🔑 Anthropic API Key</label>
+  <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
+  <div class="key-hint">
+    ขอ key ฟรีได้ที่ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
+    Key จะเก็บในเครื่องคุณเท่านั้น ไม่ส่งที่ไหน (นอกจาก Anthropic API โดยตรง)
+  </div>
+</div>
+
+<!-- Analyze Card -->
+<div class="card">
+  <div class="input-row">
+    <div>
+      <label>ทีมเจ้าบ้าน</label>
+      <input type="text" id="homeTeam" placeholder="ลิเวอร์พูล / Liverpool" />
+    </div>
+    <div class="vs">VS</div>
+    <div>
+      <label>ทีมเยือน</label>
+      <input type="text" id="awayTeam" placeholder="แมนซิตี้ / Man City" />
+    </div>
+  </div>
+  <label>การแข่งขัน</label>
+  <select id="competition">
+    <option>Premier League</option>
+    <option>La Liga</option>
+    <option>Bundesliga</option>
+    <option>Serie A</option>
+    <option>Ligue 1</option>
+    <option>Champions League</option>
+    <option>Europa League</option>
+    <option>Thai League</option>
+    <option>MLS</option>
+    <option>อื่นๆ</option>
+  </select>
+  <button class="btn" id="analyzeBtn" onclick="runPipeline()">🚀 เริ่มวิเคราะห์ 4 Agents</button>
+</div>
+
+<!-- Agent Status -->
+<div class="agent-row">
+  <div class="agent-box" id="agentNews">
+    <div class="agent-icon">📰</div>
+    <div class="agent-name">News</div>
+    <div class="agent-status" style="color:#383838">รอ</div>
+  </div>
+  <div class="agent-box" id="agentStats">
+    <div class="agent-icon">📊</div>
+    <div class="agent-name">Stats</div>
+    <div class="agent-status" style="color:#383838">รอ</div>
+  </div>
+  <div class="agent-box" id="agentFactor">
+    <div class="agent-icon">🌐</div>
+    <div class="agent-name">Factor</div>
+    <div class="agent-status" style="color:#383838">รอ</div>
+  </div>
+  <div class="agent-box" id="agentFinal">
+    <div class="agent-icon">🧠</div>
+    <div class="agent-name">Analyst</div>
+    <div class="agent-status" style="color:#383838">รอ</div>
+  </div>
+</div>
+
+<!-- Log -->
+<div class="log-box hidden" id="logBox"></div>
+
+<!-- Error -->
+<div class="err-box hidden" id="errBox"></div>
+
+<!-- Result -->
+<div class="result-card hidden" id="resultCard">
+  <div class="match-title" id="rTitle"></div>
+  <div class="match-meta" id="rMeta"></div>
+  <div class="odds-row">
+    <div class="odds-box" id="boxHome">
+      <div class="odds-label" id="labelHome"></div>
+      <div class="odds-value" id="valHome" style="color:#00ff87"></div>
+      <div class="odds-bar-bg"><div class="odds-bar" id="barHome" style="background:#00ff87"></div></div>
+    </div>
+    <div class="odds-box" id="boxDraw">
+      <div class="odds-label">เสมอ</div>
+      <div class="odds-value" id="valDraw" style="color:#ffcc00"></div>
+      <div class="odds-bar-bg"><div class="odds-bar" id="barDraw" style="background:#ffcc00"></div></div>
+    </div>
+    <div class="odds-box" id="boxAway">
+      <div class="odds-label" id="labelAway"></div>
+      <div class="odds-value" id="valAway" style="color:#ff6b6b"></div>
+      <div class="odds-bar-bg"><div class="odds-bar" id="barAway" style="background:#ff6b6b"></div></div>
+    </div>
+  </div>
+  <div class="prediction" id="rPrediction"></div>
+  <div class="section-title">รายงานจาก 3 Agents</div>
+  <div class="grid2" id="sectionsGrid"></div>
+  <div class="verdict">
+    <div class="verdict-label">🧠 สรุปจาก Analyst Agent</div>
+    <div class="verdict-text" id="rVerdict"></div>
+    <span class="badge" id="rConfidence"></span>
+  </div>
+</div>
+
+<div class="disclaimer">
+  ⚠️ วิเคราะห์จาก AI — ไม่ใช่คำแนะนำการพนัน<br>
+  ใส่ชื่อทีมภาษาไทยหรืออังกฤษได้
+</div>
+
+<script>
+const SECTION_LABELS = {
+  head_to_head:"📊 H2H", recent_form:"🔥 ฟอร์ม",
+  injury_news:"🚑 บาดเจ็บ", tactical:"⚙️ ยุทธวิธี", other_factors:"🌐 ปัจจัยอื่น"
+};
+
+function setAgent(id, status) {
+  const el = document.getElementById(id);
+  const statusEl = el.querySelector('.agent-status');
+  const iconEl = el.querySelector('.agent-icon');
+  const colors = {idle:"#383838", running:"#00ff87", done:"#3399ff", error:"#ff4444"};
+  const labels = {idle:"รอ", running:"ทำงาน...", done:"✓ เสร็จ", error:"✗ Error"};
+  statusEl.style.color = colors[status];
+  statusEl.textContent = labels[status];
+  el.style.borderColor = status !== 'idle' ? colors[status]+'55' : '#1e1e2e';
+  if(status === 'running') {
+    iconEl.classList.add('pulse');
+  } else {
+    iconEl.classList.remove('pulse');
+  }
+}
+
+function addLog(msg) {
+  const box = document.getElementById('logBox');
+  box.classList.remove('hidden');
+  box.innerHTML += '<div>'+msg+'</div>';
+  box.scrollTop = box.scrollHeight;
+}
+
+function showError(msg) {
+  const box = document.getElementById('errBox');
+  box.classList.remove('hidden');
+  box.textContent = msg;
+}
+
+function resetUI() {
+  ['logBox','errBox','resultCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('errBox').textContent = '';
+  ['agentNews','agentStats','agentFactor','agentFinal'].forEach(id => setAgent(id,'idle'));
+}
+
+async function askAgent(apiKey, system, user) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key": apiKey,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:700,
+      system: system,
+      messages:[{role:"user", content:user}]
+    })
+  });
+  const d = await r.json();
+  if(!r.ok) {
+    if(d.type==="exceeded_limit"||r.status===429) {
+      const resetsAt = d.resetsAt||(d.windows&&d.windows["5h"]&&d.windows["5h"].resets_at)||0;
+      if(resetsAt) {
+        const resetDate = new Date(resetsAt*1000);
+        const diffMin = Math.max(0,Math.ceil((resetDate-new Date())/60000));
+        const hr = Math.floor(diffMin/60), mn = diffMin%60;
+        throw new Error("⛔ Quota หมด — รออีก "+(hr>0?hr+"ชม. ":"")+mn+"นาที (reset "+resetDate.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+")");
+      }
+      throw new Error("⛔ Quota หมด — รอสักครู่แล้วลองใหม่");
+    }
+    if(r.status===401) throw new Error("🔑 API Key ไม่ถูกต้อง — ตรวจสอบ key อีกครั้ง");
+    throw new Error("API Error "+r.status+": "+(d.error&&d.error.message||JSON.stringify(d).slice(0,150)));
+  }
+  const txt = (d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+  if(!txt) throw new Error("AI ไม่ตอบกลับ (stop_reason: "+d.stop_reason+")");
+  return txt;
+}
+
+function extractJSON(raw) {
+  let s = raw.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
+  try { const j=JSON.parse(s); if(j.home_win!==undefined) return j; } catch(e){}
+  const a=s.indexOf("{"), b=s.lastIndexOf("}");
+  if(a!==-1&&b>a){ try{ const j=JSON.parse(s.slice(a,b+1)); if(j.home_win!==undefined) return j; }catch(e){} }
+  const num=k=>{ const m=s.match(new RegExp('"'+k+'"\\s*:\\s*(\\d+(?:\\.\\d+)?)'));return m?parseFloat(m[1]):null; };
+  const str=k=>{ const m=s.match(new RegExp('"'+k+'"\\s*:\\s*"([^"]*)"'));return m?m[1]:null; };
+  const hw=num("home_win"),dr=num("draw"),aw=num("away_win");
+  if(hw!==null&&dr!==null&&aw!==null){
+    const sections={};
+    ["head_to_head","recent_form","injury_news","tactical","other_factors"].forEach(k=>{const v=str(k);if(v)sections[k]=v;});
+    return{home_win:hw,draw:dr,away_win:aw,confidence:str("confidence")||"Medium",verdict:str("verdict")||"",prediction:str("prediction")||"",sections};
+  }
+  return null;
+}
+
+async function runPipeline() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const homeTeam = document.getElementById('homeTeam').value.trim();
+  const awayTeam = document.getElementById('awayTeam').value.trim();
+  const competition = document.getElementById('competition').value;
+
+  if(!apiKey) { alert("กรุณาใส่ API Key ก่อนครับ"); return; }
+  if(!homeTeam||!awayTeam) { alert("กรุณาใส่ชื่อทีมทั้งสองฝ่าย"); return; }
+
+  resetUI();
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = "🔄 กำลังวิเคราะห์...";
+
+  let n="",st="",f="";
+  try {
+    // Agent 1 News
+    setAgent('agentNews','running'); addLog("📰 News Agent...");
+    n = await askAgent(apiKey,
+      "คุณเป็นนักวิเคราะห์ข่าวฟุตบอล ตอบภาษาไทย กระชับ",
+      "วิเคราะห์ข้อมูลที่รู้จักของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
+      "1. นักเตะสำคัญที่มักบาดเจ็บหรือขาด\n2. การเปลี่ยนโค้ช/ยุทธวิธีที่รู้จัก\n3. ปัญหาทีมที่มักพบ\nตอบ 4 บุลเลตพอยต์ภาษาไทย"
+    );
+    setAgent('agentNews','done'); addLog("✅ News เสร็จ");
+
+    // Agent 2 Stats
+    setAgent('agentStats','running'); addLog("📊 Stats Agent...");
+    st = await askAgent(apiKey,
+      "คุณเป็นนักสถิติฟุตบอล ตอบภาษาไทย ระบุตัวเลข",
+      "สถิติที่รู้จักของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
+      "1. H2H โดยประมาณ\n2. ฟอร์มบ้าน "+homeTeam+"\n3. ฟอร์มเยือน "+awayTeam+"\n4. เฉลี่ยประตู\nตอบ 5 บุลเลตพอยต์"
+    );
+    setAgent('agentStats','done'); addLog("✅ Stats เสร็จ");
+
+    // Agent 3 Factor
+    setAgent('agentFactor','running'); addLog("🌐 Factor Agent...");
+    f = await askAgent(apiKey,
+      "คุณเป็นนักวิเคราะห์บริบทฟุตบอล ตอบภาษาไทย",
+      "ปัจจัยบริบทของ "+homeTeam+" vs "+awayTeam+" ("+competition+")\n"+
+      "1. ระดับและเป้าหมายในลีก\n2. ความได้เปรียบสนาม\n3. รูปแบบการเล่น\n4. แรงจูงใจ\nตอบ 4 บุลเลตพอยต์"
+    );
+    setAgent('agentFactor','done'); addLog("✅ Factor เสร็จ");
+
+    // Agent 4 Analyst
+    setAgent('agentFinal','running'); addLog("🧠 Analyst Agent...");
+    const combined = "HOME:"+homeTeam+"\nAWAY:"+awayTeam+"\nCOMP:"+competition+"\n\n[NEWS]\n"+n+"\n\n[STATS]\n"+st+"\n\n[FACTOR]\n"+f;
+    const raw = await askAgent(apiKey,
+      "You output ONLY valid JSON. Start with { end with }. No text before or after.",
+      "Analyze this football data and output ONLY JSON:\n\n"+combined+
+      "\n\nJSON (real numbers summing to 100):\n"+
+      "{\"home_win\":45,\"draw\":27,\"away_win\":28,"+
+      "\"confidence\":\"Low/Medium/High - เหตุผลภาษาไทย\","+
+      "\"verdict\":\"สรุป 2-3 ประโยคภาษาไทย\","+
+      "\"prediction\":\"ผลที่น่าจะเป็น\","+
+      "\"sections\":{\"head_to_head\":\"ไทย\",\"recent_form\":\"ไทย\",\"injury_news\":\"ไทย\",\"tactical\":\"ไทย\",\"other_factors\":\"ไทย\"}}"
+    );
+
+    const json = extractJSON(raw);
+    if(!json) throw new Error("Analyst ตอบผิดรูปแบบ — ลองใหม่อีกครั้ง");
+
+    const total = json.home_win+json.draw+json.away_win;
+    const hw = Math.round(json.home_win/total*100);
+    const dr = Math.round(json.draw/total*100);
+    const aw = 100-hw-dr;
+    setAgent('agentFinal','done'); addLog("✅ วิเคราะห์เสร็จสมบูรณ์!");
+
+    // Show result
+    const mx = Math.max(hw,dr,aw);
+    document.getElementById('rTitle').textContent = homeTeam+" vs "+awayTeam;
+    document.getElementById('rMeta').textContent = competition+" • 4-Agent AI Analysis";
+    document.getElementById('labelHome').textContent = homeTeam+" ชนะ";
+    document.getElementById('labelAway').textContent = awayTeam+" ชนะ";
+    document.getElementById('valHome').textContent = hw+"%";
+    document.getElementById('valDraw').textContent = dr+"%";
+    document.getElementById('valAway').textContent = aw+"%";
+    document.getElementById('barHome').style.width = hw+"%";
+    document.getElementById('barDraw').style.width = dr+"%";
+    document.getElementById('barAway').style.width = aw+"%";
+    document.getElementById('boxHome').style.borderColor = hw===mx?"#00ff87":"#1e1e2e";
+    document.getElementById('boxDraw').style.borderColor = dr===mx?"#ffcc00":"#1e1e2e";
+    document.getElementById('boxAway').style.borderColor = aw===mx?"#ff6b6b":"#1e1e2e";
+    document.getElementById('rPrediction').textContent = json.prediction?"🎯 "+json.prediction:"";
+    document.getElementById('rVerdict').textContent = json.verdict||"";
+    document.getElementById('rConfidence').textContent = json.confidence?"ความมั่นใจ: "+json.confidence:"";
+
+    const grid = document.getElementById('sectionsGrid');
+    grid.innerHTML = "";
+    Object.entries(json.sections||{}).forEach(([k,v])=>{
+      if(!v) return;
+      const div = document.createElement('div');
+      div.className = 'a-item';
+      div.innerHTML = '<div class="a-title">'+(SECTION_LABELS[k]||k)+'</div><div class="a-text">'+v+'</div>';
+      grid.appendChild(div);
+    });
+
+    document.getElementById('resultCard').classList.remove('hidden');
+
+  } catch(e) {
+    const msg = e.message||String(e);
+    showError("❌ "+msg);
+    addLog("❌ "+msg);
+    ['agentNews','agentStats','agentFactor','agentFinal'].forEach(id=>{
+      if(document.getElementById(id).querySelector('.agent-status').textContent==='ทำงาน...')
+        setAgent(id,'error');
+    });
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🚀 เริ่มวิเคราะห์ 4 Agents";
+  }
+}
+
+// Save API key to localStorage for convenience
+document.getElementById('apiKey').addEventListener('change', function(){
+  localStorage.setItem('fb_api_key', this.value);
+});
+window.onload = function(){
+  const saved = localStorage.getItem('fb_api_key');
+  if(saved) document.getElementById('apiKey').value = saved;
+};
+</script>
+</body>
+</html>
