@@ -57,6 +57,32 @@ select{cursor:pointer;margin-bottom:10px}
 .disclaimer{text-align:center;color:#2a2a3a;font-size:.58rem;margin-top:22px;line-height:1.6}
 .hidden{display:none}
 .section-live{border-color:#00ff8733!important}
+/* History */
+.hist-card{background:#12121a;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:10px;max-width:700px;margin-left:auto;margin-right:auto}
+.hist-card:last-child{margin-bottom:0}
+.hist-match{font-weight:700;color:#00ff87;font-size:.85rem;margin-bottom:2px}
+.hist-date{font-size:.62rem;color:#444;margin-bottom:8px}
+.hist-odds{display:flex;gap:10px;font-size:.72rem;margin-bottom:8px;flex-wrap:wrap}
+.hist-pred{font-size:.72rem;color:#ffcc00;margin-bottom:6px}
+.hist-result{font-size:.72rem;margin-bottom:8px}
+.hist-bets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.bet-btn{padding:4px 10px;border-radius:5px;border:1px solid #1e1e2e;background:transparent;color:#888;font-size:.65rem;cursor:pointer;font-family:inherit}
+.bet-btn:hover{border-color:#00ff87;color:#00ff87}
+.bet-btn.selected{background:#00ff8722;border-color:#00ff87;color:#00ff87}
+.bet-btn.correct{background:#00ff8733;border-color:#00ff87;color:#00ff87}
+.bet-btn.wrong{background:#ff444422;border-color:#ff4444;color:#ff6666}
+.score-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.score-input{background:#0d0d17;border:1px solid #1e1e2e;border-radius:6px;color:#e8e8f0;padding:5px 8px;font-size:.75rem;font-family:inherit;width:60px;text-align:center}
+.score-input:focus{border-color:#00ff87;outline:none}
+.save-score-btn{padding:5px 12px;border-radius:6px;border:none;background:#00ff87;color:#000;font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:700px;margin:0 auto 14px}
+.stat-box{background:#12121a;border:1px solid #1e1e2e;border-radius:9px;padding:12px;text-align:center}
+.stat-val{font-size:1.4rem;font-weight:900;color:#00ff87}
+.stat-label{font-size:.58rem;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.tab-row{display:flex;max-width:700px;margin:0 auto 14px;gap:6px}
+.tab-btn{flex:1;padding:9px;background:#12121a;border:1px solid #1e1e2e;border-radius:8px;color:#555;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.05em}
+.tab-btn.active{background:#0d1f14;border-color:#00ff87;color:#00ff87}
+.empty-hist{text-align:center;color:#333;font-size:.78rem;padding:30px;max-width:700px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -65,6 +91,15 @@ select{cursor:pointer;margin-bottom:10px}
   <div class="title">⚽ Football Multi-Agent AI</div>
   <div class="subtitle">5 Agents • Real-time Data • วิเคราะห์เชิงลึก</div>
 </div>
+
+<!-- Tabs -->
+<div class="tab-row">
+  <button class="tab-btn active" id="tabAnalyze" onclick="switchTab('analyze')">🔍 วิเคราะห์</button>
+  <button class="tab-btn" id="tabHistory" onclick="switchTab('history')">📋 ประวัติ</button>
+</div>
+
+<!-- ── ANALYZE PAGE ── -->
+<div id="pageAnalyze">
 
 <!-- Keys -->
 <div class="card">
@@ -149,6 +184,18 @@ select{cursor:pointer;margin-bottom:10px}
     </div>
   </div>
   <div class="prediction" id="rPrediction"></div>
+
+  <!-- My Prediction -->
+  <div style="background:#0d0d17;border:1px solid #1e1e2e;border-radius:9px;padding:13px;margin-bottom:14px">
+    <div style="font-size:.62rem;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">🎯 ทายผลของคุณ</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="bet-btn" id="betHome" onclick="selectBet('home')">🏠 เจ้าบ้านชนะ</button>
+      <button class="bet-btn" id="betDraw" onclick="selectBet('draw')">⚖️ เสมอ</button>
+      <button class="bet-btn" id="betAway" onclick="selectBet('away')">✈️ เยือนชนะ</button>
+    </div>
+    <div style="font-size:.62rem;color:#555;margin-top:7px" id="betStatus">เลือกผลที่คุณคิดว่าจะเกิดขึ้น</div>
+  </div>
+
   <div class="section-title">รายงานจาก 5 Agents</div>
   <div class="grid2" id="sectionsGrid"></div>
   <div class="verdict">
@@ -156,6 +203,23 @@ select{cursor:pointer;margin-bottom:10px}
     <div class="verdict-text" id="rVerdict"></div>
     <span class="badge" id="rConfidence"></span>
   </div>
+</div>
+
+</div><!-- end pageAnalyze -->
+
+<!-- ── HISTORY PAGE ── -->
+<div id="pageHistory" class="hidden">
+  <div class="stat-row" id="statsRow">
+    <div class="stat-box"><div class="stat-val" id="statTotal">0</div><div class="stat-label">แมตช์ทั้งหมด</div></div>
+    <div class="stat-box"><div class="stat-val" id="statAI">-</div><div class="stat-label">AI ทายถูก</div></div>
+    <div class="stat-box"><div class="stat-val" id="statMe">-</div><div class="stat-label">ฉันทายถูก</div></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;max-width:700px;margin:0 auto 10px;gap:6px">
+    <button onclick="syncFromSupabase()" style="background:transparent;border:1px solid #1e1e2e;color:#555;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.68rem;font-family:inherit">🔄 ซิงค์จากทุก Device</button>
+    <button onclick="if(confirm('ล้างประวัติทั้งหมด?')){localStorage.removeItem('fb_history');renderHistory()}" style="background:transparent;border:1px solid #ff444433;color:#ff6666;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.68rem;font-family:inherit">🗑️ ล้างประวัติ</button>
+  </div>
+  <div id="histList"></div>
+  <div class="empty-hist hidden" id="emptyHist">ยังไม่มีประวัติ<br>วิเคราะห์แมตช์แรกได้เลยครับ!</div>
 </div>
 
 <div class="disclaimer">⚠️ วิเคราะห์จาก AI + ข้อมูลสด — ไม่ใช่คำแนะนำการพนัน</div>
@@ -544,6 +608,9 @@ async function runPipeline() {
     });
     document.getElementById('resultCard').classList.remove('hidden');
 
+    // Save to history + Supabase
+    await saveMatchToHistory(home, away, compName, hw, dr, aw, json.verdict||'', json.prediction||'', json.confidence||'');
+
   } catch(e) {
     const msg = e.message||String(e);
     showError("❌ "+msg);
@@ -558,6 +625,42 @@ async function runPipeline() {
   }
 }
 
+// ── Supabase Config ──────────────────────────────────────────────────────────
+const SUPA_URL = "https://iwqaxsgdlyowtavidwrq.supabase.co/rest/v1";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cWF4c2dkbHlvd3Rhdmlkd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0ODA2OTAsImV4cCI6MjA5NTA1NjY5MH0.z3rZCoUwqaDFuaQGGNbwRYWMe206QstmslGsAsjygoA";
+const SUPA_H = {
+  "Content-Type":"application/json",
+  "apikey": SUPA_KEY,
+  "Authorization": "Bearer "+SUPA_KEY,
+  "Prefer": "return=representation"
+};
+
+async function supaInsert(data) {
+  const r = await fetch(SUPA_URL+"/match_analyses", {
+    method:"POST", headers:SUPA_H, body:JSON.stringify(data)
+  });
+  if(!r.ok) throw new Error("Supabase insert failed: "+r.status);
+  const d = await r.json();
+  return Array.isArray(d) ? d[0] : d;
+}
+
+async function supaUpdate(id, data) {
+  const r = await fetch(SUPA_URL+"/match_analyses?id=eq."+id, {
+    method:"PATCH",
+    headers:{...SUPA_H, "Prefer":"return=minimal"},
+    body:JSON.stringify(data)
+  });
+  if(!r.ok) throw new Error("Supabase update failed: "+r.status);
+}
+
+async function supaLoad(limit=50) {
+  const r = await fetch(SUPA_URL+"/match_analyses?select=*&order=created_at.desc&limit="+limit, {
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Accept":"application/json"}
+  });
+  if(!r.ok) throw new Error("Supabase load failed: "+r.status);
+  return await r.json();
+}
+
 // Save keys locally
 ['keyAnthropic','keyFootball','keyTavily'].forEach(id=>{
   const el=document.getElementById(id);
@@ -565,6 +668,224 @@ async function runPipeline() {
   const saved=localStorage.getItem('fb_'+id);
   if(saved) el.value=saved;
 });
+
+// ── Tab System ───────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('pageAnalyze').classList.toggle('hidden', tab!=='analyze');
+  document.getElementById('pageHistory').classList.toggle('hidden', tab!=='history');
+  document.getElementById('tabAnalyze').classList.toggle('active', tab==='analyze');
+  document.getElementById('tabHistory').classList.toggle('active', tab==='history');
+  if(tab==='history') renderHistory();
+}
+
+// ── History Storage ──────────────────────────────────────────────────────────
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('fb_history')||'[]'); } catch(e){ return []; }
+}
+function saveHistory(h) {
+  localStorage.setItem('fb_history', JSON.stringify(h));
+}
+
+// ── Current Match State ──────────────────────────────────────────────────────
+let currentMatch = null;
+let myBet = null;
+
+function selectBet(choice) {
+  myBet = choice;
+  ['home','draw','away'].forEach(b=>{
+    document.getElementById('bet'+b.charAt(0).toUpperCase()+b.slice(1))
+      .classList.toggle('selected', b===choice);
+  });
+  const labels = {home:'เจ้าบ้านชนะ', draw:'เสมอ', away:'เยือนชนะ'};
+  document.getElementById('betStatus').textContent = '✅ คุณทาย: '+labels[choice]+' — บันทึกอัตโนมัติแล้ว';
+  if(currentMatch) {
+    const h = loadHistory();
+    const idx = h.findIndex(x=>x.id===currentMatch.id);
+    if(idx>=0) { h[idx].myBet=choice; saveHistory(h); }
+    // Sync to Supabase
+    if(currentMatch.supaId) {
+      supaUpdate(currentMatch.supaId, {my_bet: choice}).catch(e=>console.log("bet sync fail:",e.message));
+    }
+  }
+}
+
+// ── Save match to history after analysis ─────────────────────────────────────
+async function saveMatchToHistory(home, away, comp, hw, dr, aw, verdict, prediction, confidence) {
+  const localId = Date.now().toString();
+  const aiPred = hw>dr&&hw>aw?'home':dr>=hw&&dr>=aw?'draw':'away';
+  currentMatch = {
+    id: localId, supaId: null,
+    home, away, comp,
+    homeWin:hw, draw:dr, awayWin:aw,
+    verdict, prediction, confidence,
+    date: new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    myBet: null, actualScore: null, actualResult: null,
+  };
+
+  // Save local first
+  const h = loadHistory();
+  h.unshift(currentMatch);
+  if(h.length>100) h.splice(100);
+  saveHistory(h);
+
+  // Save to Supabase in background
+  try {
+    const row = await supaInsert({
+      home_team: home, away_team: away, competition: comp,
+      home_win_pct: hw, draw_pct: dr, away_win_pct: aw,
+      confidence, verdict, prediction,
+      ai_prediction: aiPred,
+      actual_result: null, actual_score: null, my_bet: null,
+      sections: {}
+    });
+    if(row && row.id) {
+      currentMatch.supaId = row.id;
+      // Update local with supaId
+      const h2 = loadHistory();
+      const idx = h2.findIndex(x=>x.id===localId);
+      if(idx>=0) { h2[idx].supaId = row.id; saveHistory(h2); }
+    }
+  } catch(e) { console.log("Supabase save failed (local only):", e.message); }
+
+  myBet = null;
+  ['Home','Draw','Away'].forEach(b=>document.getElementById('bet'+b).classList.remove('selected'));
+  document.getElementById('betStatus').textContent = 'เลือกผลที่คุณคิดว่าจะเกิดขึ้น';
+}
+
+// ── Render History ────────────────────────────────────────────────────────────
+async function syncFromSupabase() {
+  try {
+    const rows = await supaLoad(50);
+    if(!rows.length) return;
+    const local = loadHistory();
+    let merged = [...local];
+    rows.forEach(row => {
+      const exists = merged.find(m=>m.supaId===row.id);
+      if(!exists) {
+        merged.push({
+          id: row.id, supaId: row.id,
+          home: row.home_team, away: row.away_team, comp: row.competition,
+          homeWin: row.home_win_pct, draw: row.draw_pct, awayWin: row.away_win_pct,
+          verdict: row.verdict||'', prediction: row.prediction||'',
+          confidence: row.confidence||'',
+          date: new Date(row.created_at).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+          myBet: row.my_bet, actualScore: row.actual_score, actualResult: row.actual_result,
+        });
+      } else {
+        // Update local with latest from Supabase
+        if(row.actual_result) exists.actualResult = row.actual_result;
+        if(row.actual_score) exists.actualScore = row.actual_score;
+        if(row.my_bet) exists.myBet = row.my_bet;
+      }
+    });
+    merged.sort((a,b)=>b.id.localeCompare(a.id));
+    saveHistory(merged);
+    renderHistory();
+  } catch(e) { console.log("sync fail:",e.message); }
+}
+
+function renderHistory() {
+  const h = loadHistory();
+  const list = document.getElementById('histList');
+  const empty = document.getElementById('emptyHist');
+  list.innerHTML = '';
+
+  if(!h.length) { empty.classList.remove('hidden'); updateStats([]); return; }
+  empty.classList.add('hidden');
+  updateStats(h);
+
+  h.forEach(m => {
+    const aiPred = m.homeWin>m.draw&&m.homeWin>m.awayWin?'home':m.draw>=m.homeWin&&m.draw>=m.awayWin?'draw':'away';
+    const hasResult = m.actualResult;
+    const aiCorrect = hasResult && aiPred===m.actualResult;
+    const meCorrect = hasResult && m.myBet && m.myBet===m.actualResult;
+
+    const div = document.createElement('div');
+    div.className = 'hist-card';
+    div.innerHTML = `
+      <div class="hist-match">${m.home} vs ${m.away}</div>
+      <div class="hist-date">${m.comp} • ${m.date}</div>
+      <div class="hist-odds">
+        <span style="color:#00ff87">🏠 ${m.homeWin}%</span>
+        <span style="color:#ffcc00">⚖️ ${m.draw}%</span>
+        <span style="color:#ff6b6b">✈️ ${m.awayWin}%</span>
+      </div>
+      ${m.prediction?`<div class="hist-pred">🎯 AI ทาย: ${m.prediction}</div>`:''}
+      <div style="display:flex;gap:10px;font-size:.7rem;margin-bottom:8px;flex-wrap:wrap">
+        <span>AI ทาย: <span style="color:${hasResult?(aiCorrect?'#00ff87':'#ff6666'):'#888'}">${{home:'เจ้าบ้าน',draw:'เสมอ',away:'เยือน'}[aiPred]} ${hasResult?(aiCorrect?'✅':'❌'):''}</span></span>
+        <span>คุณทาย: <span style="color:${hasResult&&m.myBet?(meCorrect?'#00ff87':'#ff6666'):'#888'}">${m.myBet?{home:'เจ้าบ้าน',draw:'เสมอ',away:'เยือน'}[m.myBet]:'ยังไม่ทาย'} ${hasResult&&m.myBet?(meCorrect?'✅':'❌'):''}</span></span>
+      </div>
+      ${hasResult ? `
+        <div class="hist-result" style="color:#aaa">
+          ผลจริง: <strong style="color:#00ff87">${m.actualScore||''} (${({home:'เจ้าบ้านชนะ',draw:'เสมอ',away:'เยือนชนะ'})[m.actualResult]})</strong>
+        </div>` : `
+        <div style="margin-bottom:6px">
+          <div style="font-size:.6rem;color:#555;margin-bottom:5px;text-transform:uppercase;letter-spacing:.07em">ใส่ผลจริง (หลังแข่งเสร็จ)</div>
+          <div class="score-row">
+            <input class="score-input" id="sh_${m.id}" placeholder="${m.home.split(' ')[0]}" type="number" min="0" max="20" />
+            <span style="color:#555;font-size:.8rem">-</span>
+            <input class="score-input" id="sa_${m.id}" placeholder="${m.away.split(' ')[0]}" type="number" min="0" max="20" />
+            <button class="save-score-btn" onclick="saveActualScore('${m.id}')">บันทึก</button>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+            <button class="bet-btn" style="font-size:.6rem" onclick="saveResultOnly('${m.id}','home')">เจ้าบ้านชนะ</button>
+            <button class="bet-btn" style="font-size:.6rem" onclick="saveResultOnly('${m.id}','draw')">เสมอ</button>
+            <button class="bet-btn" style="font-size:.6rem" onclick="saveResultOnly('${m.id}','away')">เยือนชนะ</button>
+          </div>
+        </div>`}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function saveActualScore(id) {
+  const hg = parseInt(document.getElementById('sh_'+id).value);
+  const ag = parseInt(document.getElementById('sa_'+id).value);
+  if(isNaN(hg)||isNaN(ag)) { alert('ใส่สกอร์ให้ครบครับ'); return; }
+  const result = hg>ag?'home':hg===ag?'draw':'away';
+  const h = loadHistory();
+  const idx = h.findIndex(x=>x.id===id);
+  if(idx>=0) {
+    h[idx].actualScore = hg+'-'+ag;
+    h[idx].actualResult = result;
+    saveHistory(h);
+    // Sync to Supabase
+    if(h[idx].supaId) {
+      supaUpdate(h[idx].supaId, {actual_score:hg+'-'+ag, actual_result:result})
+        .catch(e=>console.log("score sync fail:",e.message));
+    }
+    renderHistory();
+  }
+}
+
+function saveResultOnly(id, result) {
+  const h = loadHistory();
+  const idx = h.findIndex(x=>x.id===id);
+  if(idx>=0) {
+    h[idx].actualResult = result;
+    saveHistory(h);
+    if(h[idx].supaId) {
+      supaUpdate(h[idx].supaId, {actual_result:result})
+        .catch(e=>console.log("result sync fail:",e.message));
+    }
+    renderHistory();
+  }
+}
+
+function updateStats(h) {
+  const total = h.length;
+  const withResult = h.filter(m=>m.actualResult);
+  const aiCorrect = withResult.filter(m=>{
+    const aiPred = m.homeWin>m.draw&&m.homeWin>m.awayWin?'home':m.draw>=m.homeWin&&m.draw>=m.awayWin?'draw':'away';
+    return aiPred===m.actualResult;
+  }).length;
+  const meTotal = withResult.filter(m=>m.myBet).length;
+  const meCorrect = withResult.filter(m=>m.myBet&&m.myBet===m.actualResult).length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAI').textContent = withResult.length>0 ? aiCorrect+'/'+withResult.length : '-';
+  document.getElementById('statMe').textContent = meTotal>0 ? meCorrect+'/'+meTotal : '-';
+}
 </script>
 </body>
 </html>
