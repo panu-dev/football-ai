@@ -250,10 +250,12 @@ async function askClaude(apiKey, system, user) {
 // ── Football-data.org ────────────────────────────────────────────────────────
 async function fetchFootballData(fbKey, comp, home, away) {
   const result = { standings:null, matches:null, ok:false };
+  // Use CORS proxy to bypass browser restriction
+  const PROXY = "https://corsproxy.io/?";
+  const BASE = "https://api.football-data.org/v4";
   try {
-    // Standings
-    const sr = await fetch("https://api.football-data.org/v4/competitions/"+comp+"/standings", {
-      headers:{"X-Auth-Token": fbKey}
+    const sr = await fetch(PROXY+encodeURIComponent(BASE+"/competitions/"+comp+"/standings"), {
+      headers:{"X-Auth-Token": fbKey, "X-Requested-With":"XMLHttpRequest"}
     });
     if(sr.ok) {
       const sd = await sr.json();
@@ -262,11 +264,10 @@ async function fetchFootballData(fbKey, comp, home, away) {
     }
   } catch(e) {}
   try {
-    // Recent matches for competition
     const today = new Date().toISOString().split('T')[0];
     const from = new Date(Date.now()-30*24*60*60*1000).toISOString().split('T')[0];
-    const mr = await fetch("https://api.football-data.org/v4/competitions/"+comp+"/matches?dateFrom="+from+"&dateTo="+today+"&status=FINISHED", {
-      headers:{"X-Auth-Token": fbKey}
+    const mr = await fetch(PROXY+encodeURIComponent(BASE+"/competitions/"+comp+"/matches?dateFrom="+from+"&dateTo="+today+"&status=FINISHED"), {
+      headers:{"X-Auth-Token": fbKey, "X-Requested-With":"XMLHttpRequest"}
     });
     if(mr.ok) {
       const md = await mr.json();
@@ -326,6 +327,7 @@ async function tavilySearch(tavilyKey, query) {
   try {
     const r = await fetch("https://api.tavily.com/search", {
       method:"POST",
+      mode:"cors",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         api_key: tavilyKey,
